@@ -47,7 +47,7 @@ class Agent:
         val = val + self.alpha * (next_val - val)
         self.value_fn[state] = val
     
-    def print_values(self, nsamples=5):
+    def print_values(self, nsamples=3):
         for state in self.value_fn.keys():
             if (self.value_fn[state] not in [0,1,-1]):
                 print_board(invert_hash(state))
@@ -63,23 +63,25 @@ if __name__ == '__main__':
     scores = [0, 0]
 
     num_episodes = 50000
-    i = 0
+    i = 1
     while i<num_episodes:
-        ttt = TicTacToe(start_player=i%1)
+        ttt = TicTacToe(start_player=i%2)
         ttt.reset()
         done = False
         state, next_player = hash_state(ttt.state), ttt.next_player
         while not done:
             available_actions = [i for i, v in enumerate(ttt.is_action_possible) if v]
-            agent = agents[next_player]
-            action = agent.act(state, available_actions)
+            action = agents[next_player].act(state, available_actions)
             next_state, next_player, reward, done = ttt.step(action)
             agents[0].backup(state, next_state)
             agents[1].backup(state, next_state)
             state = next_state
         if reward == 1:
-            scores[1-next_player] += 1
+            winner = is_game_over(invert_hash(state))
+            scores[MARKERS.index(winner)] += 1
+        if i%1000 == 0:
+            print(scores)
+            scores = [0,0]
         i+=1
-    print(scores)
-    print(agents[0].print_values())
-    print(agents[1].print_values())
+    # print(agents[0].print_values())
+    # print(agents[1].print_values())

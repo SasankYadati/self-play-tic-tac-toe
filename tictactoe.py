@@ -2,7 +2,7 @@ from gym import spaces
 MARKERS = ['0', '1']
 
 class TicTacToe:
-    def __init__(self, start_player=0):
+    def __init__(self, start_player):
         self.action_space = spaces.Discrete(9)
         self.initial_state = ['-']*9
         self.start_player = start_player
