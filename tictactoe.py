@@ -24,8 +24,11 @@ class TicTacToe:
         winner = is_game_over(self.state)
         done = self.num_possible_actions == 0 or winner is not None
         reward = 0
-        if done and winner is not None:
-            reward = 1
+        if done:
+            if winner is not None:
+                reward = 1
+            else:
+                reward = 0.5
         self.next_player = 1 - curr_player
         return hash_state(self.state), self.next_player, reward, done
 
@@ -95,6 +98,9 @@ def checkColumns(state):
     elif (state[2] == state[5] == state[8] and state[2] in MARKERS):
         return state[2]
     return None
+
+def is_tied(state):
+    return is_game_over(state) is None and '-' not in state
 
 def make_move(state, player, action):
     assert state[action] == '-', "Action invalid"
