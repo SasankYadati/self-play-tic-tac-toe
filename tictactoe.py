@@ -1,5 +1,5 @@
 from gym import spaces
-MARKERS = ['X', 'O']
+MARKERS = ['0', '1']
 
 class TicTacToe:
     def __init__(self, start_player=0):
