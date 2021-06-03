@@ -49,7 +49,7 @@ class Agent:
                 value_fn[state] = 1 if self.player_id == 0 else -1
         return value_fn[state]
 
-    def backup(self, state, next_state, reward):
+    def backup(self, state, next_state):
         val = self.get_value(state)
         next_val = self.get_value(next_state)
         val = val + self.alpha * (next_val - val)
@@ -76,7 +76,7 @@ if __name__ == '__main__':
                 agent = agent2
             action = agent.act(state, available_actions)
             next_state, next_player, reward, done = ttt.step(action)
-            agent.backup(state, next_state, reward)
+            agent.backup(state, next_state)
             if reward == 1:
                 scores_0 += 1
             elif reward == -1:
