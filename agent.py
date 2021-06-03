@@ -1,11 +1,10 @@
-from tictactoe import TicTacToe, hash_state, invert_hash, is_game_over, make_move
+from tictactoe import MARKERS, TicTacToe, hash_state, invert_hash, is_game_over, make_move, print_board
 import random
-
-value_fn = {}
 
 class Agent:
     def __init__(self, player_id):
         self.player_id = player_id
+        self.value_fn = {}
         self.last_action = None
         self.last_state = None
         self.alpha = 0.1
@@ -25,12 +24,7 @@ class Agent:
             next_val = self.get_value(hash_state(next_state))
             available_values.append(next_val)
 
-        if self.player_id == 0:
-            indices = self.best_indices(available_values, max)
-        else:
-            indices = self.best_indices(available_values, min)
-
-        # tie breaking by random choice
+        indices = self.best_indices(available_values, max)
         idx = random.choice(indices)
         action = available_actions[idx]
 
@@ -41,44 +35,50 @@ class Agent:
         return [i for i, v in enumerate(values) if v == best]
 
     def get_value(self, state):
-        if state not in value_fn:
+        if state not in self.value_fn:
             winner = is_game_over(invert_hash(state))
             if winner is None:
-                value_fn[state] = 0
+                self.value_fn[state] = 0
             else:
-                value_fn[state] = 1 if self.player_id == 0 else -1
-        return value_fn[state]
+                self.value_fn[state] = 1 if self.player_id == MARKERS.index(winner) else -1
+        return self.value_fn[state]
 
     def backup(self, state, next_state):
         val = self.get_value(state)
         next_val = self.get_value(next_state)
         val = val + self.alpha * (next_val - val)
-        value_fn[state] = val
+        self.value_fn[state] = val
 
 if __name__ == '__main__':
-    ttt = TicTacToe()
+    ttt = TicTacToe(start_player=1)
 
     # ttt.render()
-    agent1 = Agent(0)
-    agent2 = Agent(1)
+    agents = [Agent(0),Agent(1)]
+    scores = [0, 0]
+
     num_episodes = 5000
-    scores_0 = 0
-    scores_1 = 0
-    for i in range(num_episodes):
+    i = 0
+    while i<num_episodes:
         ttt.reset()
         done = False
         state, next_player = hash_state(ttt.state), ttt.next_player
         while not done:
             available_actions = [i for i, v in enumerate(ttt.is_action_possible) if v]
-            if next_player == 0:
-                agent = agent1
-            else:
-                agent = agent2
+            agent = agents[next_player]
             action = agent.act(state, available_actions)
             next_state, next_player, reward, done = ttt.step(action)
-            agent.backup(state, next_state)
-            if reward == 1:
-                scores_0 += 1
-            elif reward == -1:
-                scores_1 += 1
-        print(scores_0, " ", scores_1)
+            # ttt.render()
+            agents[0].backup(state, next_state)
+            agents[1].backup(state, next_state)
+        if reward == 1:
+            scores[1-next_player] += 1
+        if (i%1000 == 0):
+            print(scores)
+            scores = [0,0]
+        i+=1
+    for state in agents[0].value_fn.keys():
+        if (agents[0].value_fn[state] not in [0, 1, -1]):
+            print_board(invert_hash(state))
+            print(agents[0].value_fn[state])
+            print(agents[1].value_fn[state])
+            print("\n\n\n")

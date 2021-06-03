@@ -2,10 +2,10 @@ from gym import spaces
 MARKERS = ['X', 'O']
 
 class TicTacToe:
-    def __init__(self):
+    def __init__(self, start_player=0):
         self.action_space = spaces.Discrete(9)
         self.initial_state = ['-']*9
-        self.start_player = 0
+        self.start_player = start_player
         self.reset()
 
     def reset(self):
@@ -25,12 +25,12 @@ class TicTacToe:
         done = self.num_possible_actions == 0 or winner is not None
         reward = 0
         if done and winner is not None:
-            reward = 1 if winner is MARKERS[0] else -1
+            reward = 1
         self.next_player = 1 - curr_player
         return hash_state(self.state), self.next_player, reward, done
 
     def render(self):
-        self.print_board()
+        print_board(self.state)
 
     def sample_action(self):
         random_action = self.action_space.sample()
@@ -38,20 +38,20 @@ class TicTacToe:
             random_action = self.action_space.sample()
         return random_action
 
-    def print_board(self):
-        print ( "   |   |   ")
-        print (f" {self.state[0]} | {self.state[1]} | {self.state[2]}  ")
-        print ("   |   |")
-        print ("---|---|---")
-        print ("   |   |")
-        print (f" {self.state[3]} | {self.state[4]} | {self.state[5]}  ")
-        print ("   |   |")
-        print ("---|---|---")
-        print ("   |   |")
-        print (f" {self.state[6]} | {self.state[7]} | {self.state[8]}  ")
-        print ("   |   |   ")
-        print("------------")
-        print("------------")
+def print_board(state):
+    print ( "   |   |   ")
+    print (f" {state[0]} | {state[1]} | {state[2]}  ")
+    print ("   |   |")
+    print ("---|---|---")
+    print ("   |   |")
+    print (f" {state[3]} | {state[4]} | {state[5]}  ")
+    print ("   |   |")
+    print ("---|---|---")
+    print ("   |   |")
+    print (f" {state[6]} | {state[7]} | {state[8]}  ")
+    print ("   |   |   ")
+    print("------------")
+    print("------------")
     
 def hash_state(state):
     hash = ",".join([s for s in state])
